@@ -1,0 +1,37 @@
+{
+  "name": "poc-sequelize-node",
+  "version": "0.0.1",
+  "description": "Uma POC para testar a implementação da biblioteca Sequelize no NodeJS fazendo um CRUD simples",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "nodemon src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brunoeas/poc-sequelize-node.git"
+  },
+  "keywords": [
+    "node",
+    "sequelize",
+    "poc",
+    "crud"
+  ],
+  "author": "Bruno Eduardo <bruno.soares@kepha.com.br>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/brunoeas/poc-sequelize-node/issues"
+  },
+  "homepage": "https://github.com/brunoeas/poc-sequelize-node#readme",
+  "dependencies": {
+    "dotenv": "8.2.0",
+    "express": "4.17.1",
+    "morgan": "1.9.1",
+    "pg": "^7.18.2",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^5.21.5"
+  },
+  "devDependencies": {
+    "nodemon": "2.0.2",
+    "sequelize-cli": "^5.5.1"
+  }
+}
