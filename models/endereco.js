@@ -1,4 +1,5 @@
 const getDefaultConfig = require('../config/default-table-config');
+const Usuario = require('./usuario').default;
 
 /**
  * Classe modelo do Endereço
@@ -19,20 +20,16 @@ class EnderecoModel {
    *       tpEndereco = undefined,
    *       idUsuario = undefined
    *     }={}] - Props
-   * @param {boolean} [isNew=false] - Se ja está persistido no banco de dados = false; se não = true; default = false;
    */
-  constructor(
-    {
-      idEndereco = undefined,
-      dsRua = undefined,
-      nrEndereco = undefined,
-      dsBairro = undefined,
-      tpEndereco = undefined,
-      idUsuario = undefined
-    } = {},
-    isNew = false
-  ) {
-    this.idEndereco = isNew ? null : idEndereco;
+  constructor({
+    idEndereco = undefined,
+    dsRua = undefined,
+    nrEndereco = undefined,
+    dsBairro = undefined,
+    tpEndereco = undefined,
+    idUsuario = undefined
+  } = {}) {
+    this.idEndereco = idEndereco;
     this.dsRua = dsRua;
     this.nrEndereco = nrEndereco;
     this.dsBairro = dsBairro;
@@ -49,8 +46,9 @@ class EnderecoModel {
  * @param {*} DataTypes - Tipos de dados
  * @returns Definição da tabela Endereço
  */
-const entity = (sequelize, DataTypes) =>
-  sequelize.define(
+function entity(sequelize, DataTypes) {
+  // console.log('sequelize: ', sequelize, '\ndataTypes: ', DataTypes);
+  const Endereco = sequelize.define(
     'endereco',
     {
       idEndereco: {
@@ -94,6 +92,11 @@ const entity = (sequelize, DataTypes) =>
     },
     getDefaultConfig()
   );
+
+  Endereco.belongsTo(Usuario(sequelize, DataTypes), { foreignKey: 'idUsuario' });
+
+  return Endereco;
+}
 
 module.exports = {
   default: entity,

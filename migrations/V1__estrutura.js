@@ -57,6 +57,7 @@ const migration = {
           idUsuario: {
             field: 'id_usuario',
             type: DataTypes.INTEGER,
+            allowNull: false,
             references: {
               model: {
                 tableName: 'usuario'

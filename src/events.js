@@ -4,12 +4,12 @@ const EventEmitter = require('events').EventEmitter;
  * Classe Singleton do EventEmitter para garantir uma unica instância do EventEmitter no Runtime do App
  *
  * @author Bruno Eduardo <bruno.soares@kepha.com.br>
- * @class Singleton
+ * @class EventEmitterSingleton
  */
-class Singleton {
+class EventEmitterSingleton {
   constructor() {
-    if (!Singleton.instance) {
-      Singleton.instance = new EventEmitter();
+    if (!EventEmitterSingleton.instance) {
+      EventEmitterSingleton.instance = new EventEmitter();
     }
   }
 
@@ -19,11 +19,11 @@ class Singleton {
    * @returns {EventEmitter} Instâcia do EventEmitter
    */
   getInstance() {
-    return Singleton.instance;
+    return EventEmitterSingleton.instance;
   }
 }
 
-module.exports = Singleton;
+module.exports = EventEmitterSingleton;
 
 /**
  * Modulos

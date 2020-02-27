@@ -1,8 +1,9 @@
-const Emitter = require('../events');
-const emitter = new Emitter().getInstance();
+const EventEmitter = require('../events');
+const emitter = new EventEmitter().getInstance();
 const usuarioEventsMap = require('../events-map/usuario-events');
 const models = require('../../models');
 const Usuario = models.usuario;
+const Endereco = models.endereco;
 const { UsuarioModel } = require('../../models/usuario');
 
 /**
@@ -13,7 +14,10 @@ const { UsuarioModel } = require('../../models/usuario');
  * @param {Response} res - Response
  */
 function saveUsuario(req, res) {
-  Usuario.create(new UsuarioModel(req.body, true))
+  const usuario = new UsuarioModel(req.body);
+  usuario.idUsuario = null;
+
+  Usuario.create(usuario)
     .then(data => res.send(data))
     .catch(err =>
       emitter.emit(usuarioEventsMap.HANDLE_ERROR, res, err, '> Erro ao salvar novo Usuário')
@@ -43,7 +47,7 @@ function updateUsuario(req, res) {
  * @param {Response} res - Response
  */
 function findAllUsuarios(req, res) {
-  Usuario.findAll()
+  Usuario.findAll({ include: { model: Endereco, as: 'enderecoList' } })
     .then(data => res.send(data))
     .catch(err =>
       emitter.emit(usuarioEventsMap.HANDLE_ERROR, res, err, '> Erro ao buscar todos os Usuários')
@@ -58,7 +62,7 @@ function findAllUsuarios(req, res) {
  * @param {Response} res - Response
  */
 function findUsuarioById(req, res) {
-  Usuario.findOne({ where: { idUsuario: req.params.id } })
+  res.Usuario.findByPk(req.params.id, { include: { model: Endereco, as: 'enderecoList' } })
     .then(data => res.send(data))
     .catch(err =>
       emitter.emit(usuarioEventsMap.HANDLE_ERROR, res, err, '> Erro ao buscar Usuário pelo ID')

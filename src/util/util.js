@@ -1,5 +1,5 @@
-const Emitter = require('../events');
-const emitter = new Emitter().getInstance();
+const EventEmitter = require('../events');
+const emitter = new EventEmitter().getInstance();
 const { eventsMap } = require('../events-map');
 
 /**
@@ -11,7 +11,7 @@ const { eventsMap } = require('../events-map');
  * @param {string} [msg='> Ocorreu um erro: '] - Mensagem de erro
  */
 function handleErrorAndSendResponse(res, err, msg = '> Ocorreu um erro') {
-  console.error(`${msg}: `, err);
+  console.error(`\n${msg}: `, err);
   res.status(400).send({
     message: msg,
     error: process.env.RUNNING_ENV && process.env.RUNNING_ENV !== 'dev' ? undefined : err

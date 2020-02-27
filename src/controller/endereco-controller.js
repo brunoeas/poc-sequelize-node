@@ -1,10 +1,11 @@
-const Emitter = require('../events');
-const emitter = new Emitter().getInstance();
+const EventEmitter = require('../events');
+const emitter = new EventEmitter().getInstance();
 const enderecoEventsMap = require('../events-map/endereco-events');
 const models = require('../../models');
 const Endereco = models.endereco;
 const Usuario = models.usuario;
 const { EnderecoModel } = require('../../models/endereco');
+const tipoEnderecoEnum = require('../enumeration/tipo-endereco-enum');
 
 /**
  * Salva um novo Endereço
@@ -15,21 +16,17 @@ const { EnderecoModel } = require('../../models/endereco');
  */
 function saveEndereco(req, res) {
   setUsuarioInEndereco(req.body)
-    .then(() =>
-      Endereco.create(new EnderecoModel(req.body, true))
+    .then(() => {
+      const endereco = new EnderecoModel(req.body);
+      endereco.idEndereco = null;
+
+      Endereco.create(endereco)
         .then(data => res.send(data))
         .catch(err =>
           emitter.emit(enderecoEventsMap.HANDLE_ERROR, res, err, '> Erro ao salvar novo Endereço')
-        )
-    )
-    .catch(err =>
-      emitter.emit(
-        enderecoEventsMap.HANDLE_ERROR,
-        res,
-        err,
-        '> Erro ao buscar Usuário pelo ID para settar no Endereço'
-      )
-    );
+        );
+    })
+    .catch(err => handleErrorSetUsuarioInEndereco(res, err));
 }
 
 /**
@@ -48,14 +45,7 @@ function updateEndereco(req, res) {
           emitter.emit(enderecoEventsMap.HANDLE_ERROR, res, err, '> Erro ao atualizar um Endereço')
         )
     )
-    .catch(err =>
-      emitter.emit(
-        enderecoEventsMap.HANDLE_ERROR,
-        res,
-        err,
-        '> Erro ao buscar Usuário pelo ID para settar no Endereço'
-      )
-    );
+    .catch(err => handleErrorSetUsuarioInEndereco(res, err));
 }
 
 /**
@@ -66,7 +56,7 @@ function updateEndereco(req, res) {
  * @param {Response} res - Response
  */
 function findAllEnderecos(req, res) {
-  Endereco.findAll()
+  Endereco.findAll({ include: Usuario })
     .then(data => res.send(data))
     .catch(err =>
       emitter.emit(enderecoEventsMap.HANDLE_ERROR, res, err, '> Erro ao buscar todos os Endereços')
@@ -81,7 +71,7 @@ function findAllEnderecos(req, res) {
  * @param {Response} res - Response
  */
 function findEnderecoById(req, res) {
-  Endereco.findOne({ where: { idEndereco: req.params.id } })
+  Endereco.findByPk(req.params.id, { include: Usuario })
     .then(data => res.send(data))
     .catch(err =>
       emitter.emit(enderecoEventsMap.HANDLE_ERROR, res, err, '> Erro ao buscar Endereço pelo ID')
@@ -103,11 +93,53 @@ function deleteEnderecoById(req, res) {
     );
 }
 
+/**
+ * Busca os Endereços filtrando pelo Usuário
+ *
+ * @author Bruno Eduardo <bruno.soares@kepha.com.br>
+ * @param {Request} req - Request
+ * @param {Response} res - Response
+ */
+function findEnderecosByUsuario(req, res) {
+  Endereco.findAll({ where: { idUsuario: req.params.idUsuario } })
+    .then(data => res.send(data))
+    .catch(err =>
+      emitter.emit(
+        enderecoEventsMap.HANDLE_ERROR,
+        res,
+        err,
+        '> Erro ao buscar os Endereços pelo Usuário'
+      )
+    );
+}
+
+/**
+ * Busca os Endereços residenciais
+ *
+ * @author Bruno Eduardo <bruno.soares@kepha.com.br>
+ * @param {Request} req - Request
+ * @param {Response} res - Response
+ */
+function findEnderecosResidenciais(req, res) {
+  Endereco.findAll({ where: { tpEndereco: tipoEnderecoEnum.RESIDENCIAL } })
+    .then(data => res.send(data))
+    .catch(err =>
+      emitter.emit(
+        enderecoEventsMap.HANDLE_ERROR,
+        res,
+        err,
+        '> Erro ao buscar os Endereços residenciais'
+      )
+    );
+}
+
 emitter.on(enderecoEventsMap.CREATE_ENDERECO, saveEndereco);
 emitter.on(enderecoEventsMap.UPDATE_ENDERECO, updateEndereco);
 emitter.on(enderecoEventsMap.FINDALL_ENDERECOS, findAllEnderecos);
 emitter.on(enderecoEventsMap.FIND_ENDERECO_BYID, findEnderecoById);
 emitter.on(enderecoEventsMap.DELETE_ENDERECO_BYID, deleteEnderecoById);
+emitter.on(enderecoEventsMap.FIND_ENDERECOS_BYUSUARIO, findEnderecosByUsuario);
+emitter.on(enderecoEventsMap.FIND_ENDERECOS_RESIDENCIAIS, findEnderecosResidenciais);
 
 /**
  * Busca na base de dados e setta o Usuário no Endereço pelo ID do Usuário que veio no DTO do Endereço
@@ -117,7 +149,23 @@ emitter.on(enderecoEventsMap.DELETE_ENDERECO_BYID, deleteEnderecoById);
  * @returns {Promise} Promise da busca pelo Usuário
  */
 function setUsuarioInEndereco(endereco) {
-  return Usuario.findOne({ where: { idUsuario: endereco.usuario.idUsuario } }).then(
+  return Usuario.findByPk(endereco.usuario.idUsuario).then(
     data => (endereco.idUsuario = data.idUsuario)
+  );
+}
+
+/**
+ * Trata um erro que ocorrer no processo de busca de Usuário para settar no Endereço
+ *
+ * @author Bruno Eduardo <bruno.soares@kepha.com.br>
+ * @param {Response} res - Response
+ * @param {*} err - Erro
+ */
+function handleErrorSetUsuarioInEndereco(res, err) {
+  emitter.emit(
+    enderecoEventsMap.HANDLE_ERROR,
+    res,
+    err,
+    '> Erro ao buscar Usuário pelo ID para settar no Endereço'
   );
 }
