@@ -49,6 +49,21 @@ function updateEndereco(req, res) {
 }
 
 /**
+ * Deleta um Endereço pelo ID
+ *
+ * @author Bruno Eduardo <bruno.soares@kepha.com.br>
+ * @param {Request} req - Request
+ * @param {Response} res - Response
+ */
+function deleteEnderecoById(req, res) {
+  Endereco.destroy({ where: { idEndereco: req.params.id } })
+    .then(() => res.send())
+    .catch(err =>
+      emitter.emit(enderecoEventsMap.HANDLE_ERROR, res, err, '> Erro ao deletar Endereço pelo ID')
+    );
+}
+
+/**
  * Busca todos os Endereços
  *
  * @author Bruno Eduardo <bruno.soares@kepha.com.br>
@@ -75,21 +90,6 @@ function findEnderecoById(req, res) {
     .then(data => res.send(data))
     .catch(err =>
       emitter.emit(enderecoEventsMap.HANDLE_ERROR, res, err, '> Erro ao buscar Endereço pelo ID')
-    );
-}
-
-/**
- * Deleta um Endereço pelo ID
- *
- * @author Bruno Eduardo <bruno.soares@kepha.com.br>
- * @param {Request} req - Request
- * @param {Response} res - Response
- */
-function deleteEnderecoById(req, res) {
-  Endereco.destroy({ where: { idEndereco: req.params.id } })
-    .then(() => res.send())
-    .catch(err =>
-      emitter.emit(enderecoEventsMap.HANDLE_ERROR, res, err, '> Erro ao deletar Endereço pelo ID')
     );
 }
 
