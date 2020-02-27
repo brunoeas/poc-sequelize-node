@@ -12,13 +12,9 @@ class UsuarioModel {
    *
    * @author Bruno Eduardo <bruno.soares@kepha.com.br>
    * @param {*} [{ idUsuario = undefined, nmUsuario = undefined, dtNascimento = undefined }={}] - Props
-   * @param {boolean} [isNew=false] - Se ja está persistido no banco de dados = false; se não = true; default = false;
    */
-  constructor(
-    { idUsuario = undefined, nmUsuario = undefined, dtNascimento = undefined } = {},
-    isNew = false
-  ) {
-    this.idUsuario = isNew ? null : idUsuario;
+  constructor({ idUsuario = undefined, nmUsuario = undefined, dtNascimento = undefined } = {}) {
+    this.idUsuario = idUsuario;
     this.nmUsuario = nmUsuario;
     this.dtNascimento = dtNascimento;
   }
@@ -32,8 +28,8 @@ class UsuarioModel {
  * @param {*} DataTypes - Tipos de dados
  * @returns Definição da tabela Usuário
  */
-const entity = (sequelize, DataTypes) =>
-  sequelize.define(
+function entity(sequelize, DataTypes) {
+  const Usuario = sequelize.define(
     'usuario',
     {
       idUsuario: {
@@ -55,6 +51,11 @@ const entity = (sequelize, DataTypes) =>
     },
     getDefaultConfig()
   );
+
+  Usuario.hasMany(sequelize.models.endereco, { foreignKey: 'idUsuario', as: 'enderecoList' });
+
+  return Usuario;
+}
 
 module.exports = {
   default: entity,

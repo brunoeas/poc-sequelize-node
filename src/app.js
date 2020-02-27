@@ -2,8 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const http = require('http');
-const Emitter = require('./events');
-const emitter = new Emitter().getInstance();
+const EventEmitter = require('./events');
+const emitter = new EventEmitter().getInstance();
 const { eventsMap } = require('./events-map');
 
 /**
@@ -43,7 +43,8 @@ function app() {
   const port = process.env.PORT || 2210;
   server.listen(port, () => console.log('> Servidor on-line na porta:', port));
 
-  emitter.emit(eventsMap.STARTUP, app);
+  const router = express.Router();
+  emitter.emit(eventsMap.STARTUP, router, routerCallback => app.use('/', routerCallback));
 
   return app;
 }

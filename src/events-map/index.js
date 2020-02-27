@@ -10,8 +10,8 @@ const defaultEventsMap = {
  * Mescla os eventos passados por parâmetro e os padrões e retorna
  *
  * @author Bruno Eduardo <bruno.soares@kepha.com.br>
- * @param {*} [additional={}] - Eventos adicionais que serão mesclados, dando preferência aos eventos padrões
- * @returns Eventos padrões e do parâmetro mesclados
+ * @param {Object} [additional={}] - Eventos adicionais que serão mesclados, dando preferência aos eventos padrões
+ * @returns {Object} Eventos padrões e do parâmetro mesclados
  */
 function getEventsMap(additional = {}) {
   return { ...additional, ...defaultEventsMap };
